@@ -18,7 +18,7 @@ import {
   Heart
 } from 'lucide-react';
 import { RACKS_DATA, JADWAL } from './data';
-import { Rack } from './types';
+import { Rack, Product } from './types';
 
 type Screen = 'home' | 'denah' | 'jadwal' | 'detail-rak';
 type RHPeriod = 'daily' | 'weekly' | 'monthly';
@@ -136,16 +136,16 @@ export default function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="p-4"
+              className="p-3"
             >
               {/* Search & Filter Section */}
               <div className="flex gap-2 mb-3">
-                <div className="flex-1 bg-surface rounded-[28px] p-1.5 pl-5 flex items-center gap-2 shadow-sm border border-border-custom focus-within:border-gold transition-all">
-                  <Search className="w-5 h-5 text-text-muted" />
+                <div className="flex-1 bg-surface rounded-[24px] p-1 pl-4 flex items-center gap-2 shadow-sm border border-border-custom focus-within:border-gold transition-all">
+                  <Search className="w-4 h-4 text-text-muted" />
                   <input 
                     type="text" 
                     placeholder="Cari rak atau produk..." 
-                    className="flex-1 py-3 bg-transparent outline-none text-text-main font-medium placeholder:text-text-muted placeholder:font-normal"
+                    className="flex-1 py-2 bg-transparent outline-none text-text-main text-sm font-medium placeholder:text-text-muted placeholder:font-normal"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -157,13 +157,13 @@ export default function App() {
                 </div>
                 <button 
                   onClick={() => setIsFilterOpen(true)}
-                  className={`w-14 h-14 rounded-[24px] flex items-center justify-center border transition-all ${
+                  className={`w-11 h-11 rounded-[20px] flex items-center justify-center border transition-all ${
                     statusFilter !== 'all' || categoryFilter !== 'all' || letterFilter !== 'all'
                     ? 'bg-gold border-gold text-white shadow-lg' 
                     : 'bg-surface border-border-custom text-text-main shadow-sm'
                   }`}
                 >
-                  <Filter className="w-6 h-6" />
+                  <Filter className="w-4 h-4" />
                 </button>
               </div>
 
@@ -178,7 +178,7 @@ export default function App() {
                   <button
                     key={i}
                     onClick={() => setStatusFilter(f.status)}
-                    className={`px-4 py-2 rounded-full text-xs font-black whitespace-nowrap border transition-all uppercase tracking-wider ${
+                    className={`px-2.5 py-1 rounded-full text-[9px] font-black whitespace-nowrap border transition-all uppercase tracking-wider ${
                       statusFilter === f.status 
                       ? 'bg-gold border-gold text-white shadow-md' 
                       : 'bg-card2 border-border-custom text-text-dim'
@@ -189,11 +189,41 @@ export default function App() {
                 ))}
               </div>
 
-              <div className="flex justify-between items-center mb-4 px-1">
-                <h1 className="text-xl font-sans font-black text-text-main tracking-tight uppercase">
-                  {specificRackId ? `Produk Rak ${specificRackId}` : 'Planogram Rak'}
-                </h1>
-                <div className="text-[10px] font-bold text-text-dim bg-card2 px-3 py-1 rounded-full border border-border-custom">
+              <div className="flex justify-between items-start mb-4 px-1">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h1 className="text-lg font-sans font-black text-text-main tracking-tight uppercase">
+                      {specificRackId ? specificRackId : 'PLANOGRAM'}
+                    </h1>
+                    {specificRackId && (
+                      <div className="flex gap-1">
+                        {RACKS_DATA.find(r => r.id === specificRackId)?.harga && (
+                          <div className="flex items-center gap-0.5 bg-green-500/10 text-green-500 px-1 py-0.5 rounded text-[7px] font-black border border-green-500/20">
+                            <CheckCircle2 className="w-2 h-2" />
+                            HARGA
+                          </div>
+                        )}
+                        {RACKS_DATA.find(r => r.id === specificRackId)?.rapi && (
+                          <div className="flex items-center gap-0.5 bg-blue-500/10 text-blue-500 px-1 py-0.5 rounded text-[7px] font-black border border-blue-500/20">
+                            <CheckCircle2 className="w-2 h-2" />
+                            RAPI
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {specificRackId && (
+                    <>
+                      <div className="text-[10px] font-bold text-text-main mb-0.5">
+                        Rak {specificRackId} · Planogram Utama
+                      </div>
+                      <div className="text-[9px] font-medium text-text-dim flex items-center gap-1">
+                        Geser produk untuk melihat detail lokasi
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="text-[8px] font-bold text-text-dim bg-card2 px-2 py-0.5 rounded-full border border-border-custom mt-1">
                   {specificRackId ? `${filteredProducts.length} ITEM` : `${filteredRacks.length} RAK`}
                 </div>
               </div>
@@ -208,24 +238,10 @@ export default function App() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       onClick={() => navigateTo('detail-rak', product.rack)}
-                      className="bg-[#2D2D35] rounded-[24px] overflow-hidden shadow-lg relative cursor-pointer flex flex-col active:scale-95 transition-all"
+                      className="bg-white rounded-[16px] overflow-hidden border border-border-custom relative cursor-pointer flex flex-col active:scale-95 transition-all"
                     >
-                      {/* Product Info Overlay */}
-                      <div className="p-3 z-10">
-                        <div className="text-white font-black text-[11px] uppercase tracking-tight mb-0.5 line-clamp-1">
-                          {highlightText(product.name, searchQuery)}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-0.5 text-orange-400">
-                            <Star className="w-2.5 h-2.5 fill-current" />
-                            <span className="text-[9px] font-bold text-white/90">{product.rating}</span>
-                          </div>
-                          <div className="text-[8px] font-medium text-white/40">{product.reviews}</div>
-                        </div>
-                      </div>
-
                       {/* Product Image */}
-                      <div className="aspect-square flex items-center justify-center p-4 relative">
+                      <div className="aspect-square flex items-center justify-center p-3 relative">
                         <img 
                           src={product.image} 
                           alt={product.name}
@@ -233,78 +249,60 @@ export default function App() {
                           className="w-full h-full object-contain drop-shadow-xl"
                         />
                       </div>
-
-                      {/* Footer */}
-                      <div className="p-3 flex items-center justify-between mt-auto bg-black/20">
-                        <div className="flex items-center gap-1 text-white/60">
-                          <Heart className="w-3 h-3" />
-                          <span className="text-[9px] font-bold">{product.likes}</span>
-                        </div>
-                        <div className="text-[9px] font-black text-gold">
-                          {product.price}
-                        </div>
-                      </div>
                     </motion.div>
                   ))}
                 </div>
               ) : (
                 /* Rack List View (General Browsing) */
-                <div className="grid grid-cols-1 gap-6 pb-8">
+                <div className="grid grid-cols-2 gap-3 pb-8">
                   {filteredRacks.slice(0, itemsToShow).map((rack) => (
                     <motion.div 
                       key={rack.id}
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-surface rounded-[24px] border border-border-custom overflow-hidden shadow-sm active:scale-[0.99] transition-all"
+                      onClick={() => navigateTo('detail-rak', rack)}
+                      className="bg-surface rounded-[16px] border border-border-custom overflow-hidden shadow-sm active:scale-[0.99] transition-all cursor-pointer flex flex-col"
                     >
-                      {/* Top Colored Section - Swipeable Products */}
-                      <div className="relative group">
-                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x">
-                          {rack.products.map((product, idx) => (
-                            <div key={idx} className="w-full flex-shrink-0 snap-center p-2">
-                              <div 
-                                onClick={() => navigateTo('detail-rak', rack)}
-                                className="bg-[#2D2D35] rounded-[20px] overflow-hidden shadow-xl relative cursor-pointer aspect-[3/4] flex flex-col"
-                              >
-                                {/* Product Info Overlay */}
-                                <div className="p-4 z-10">
-                                  <div className="text-white font-black text-xs uppercase tracking-tight mb-1">{product.name}</div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-0.5 text-orange-400">
-                                      <Star className="w-2.5 h-2.5 fill-current" />
-                                      <span className="text-[9px] font-bold text-white/90">{product.rating}</span>
-                                    </div>
-                                    <div className="text-[9px] font-medium text-white/50">{product.reviews}</div>
-                                  </div>
-                                </div>
+                      {/* Rack Header Section */}
+                      <div className="p-2 border-b border-border-custom">
+                        <div className="flex items-center gap-1.5">
+                          <div className="text-sm font-black text-text-main uppercase tracking-tight">{rack.id}</div>
+                          <div className="flex gap-0.5">
+                            {rack.harga && (
+                              <div className="bg-green-500 w-1.5 h-1.5 rounded-full" title="HARGA" />
+                            )}
+                            {rack.rapi && (
+                              <div className="bg-blue-500 w-1.5 h-1.5 rounded-full" title="RAPI" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
 
+                      {/* Top Colored Section - Swipeable Products */}
+                      <div className="relative group flex-1">
+                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x h-full">
+                          {rack.products.map((product, idx) => (
+                            <div key={idx} className="w-full flex-shrink-0 snap-center p-1">
+                              <div className="mb-1 px-1">
+                                <div className="text-[7px] font-bold text-text-main leading-tight">
+                                  Shelving {product.shelving} · Baris {product.baris}
+                                </div>
+                                <div className="text-[6px] font-medium text-red-500">
+                                  RH {product.baseRH} hari
+                                </div>
+                              </div>
+                              <div 
+                                className="bg-white rounded-[12px] overflow-hidden border border-border-custom relative aspect-square flex flex-col"
+                              >
                                 {/* Product Image */}
-                                <div className="flex-1 flex items-center justify-center p-4">
+                                <div className="flex-1 flex items-center justify-center p-1.5">
                                   <img 
                                     src={product.image} 
                                     alt={product.name}
                                     referrerPolicy="no-referrer"
-                                    className="w-full h-full object-contain drop-shadow-2xl"
+                                    className="w-full h-full object-contain drop-shadow-xl"
                                   />
-                                </div>
-
-                                {/* Footer */}
-                                <div className="p-4 flex items-center justify-between mt-auto">
-                                  <div className="flex items-center gap-1.5 text-white/70">
-                                    <Heart className="w-3.5 h-3.5" />
-                                    <span className="text-xs font-bold">{product.likes}</span>
-                                  </div>
-                                  <div className="text-[9px] font-black text-gold bg-gold/10 px-2 py-1 rounded-md border border-gold/20">
-                                    RAK {rack.id}
-                                  </div>
-                                </div>
-
-                                {/* Dots */}
-                                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-                                  {rack.products.map((_, pIdx) => (
-                                    <div key={pIdx} className={`w-1 h-1 rounded-full transition-all ${idx === pIdx ? 'bg-gold w-3' : 'bg-white/20'}`} />
-                                  ))}
                                 </div>
                               </div>
                             </div>
@@ -312,31 +310,28 @@ export default function App() {
                         </div>
                       </div>
                       
-                      <div className="px-4 pb-4">
-                        {/* Shelving Mini Visualization */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="text-[10px] font-black text-text-dim uppercase tracking-widest">Visualisasi Rak</div>
-                          <div className="text-[10px] font-bold text-gold">{rack.filled}/{rack.slots} Slot</div>
+                      <div className="px-2 pb-2 mt-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-[6px] font-black text-text-dim uppercase">Visual</div>
+                          <div className="text-[6px] font-bold text-gold">{rack.filled}/{rack.slots}</div>
                         </div>
-                        <div className="w-full space-y-1.5">
-                          <div className="flex flex-col-reverse gap-1">
-                            {rack.shelfData.map((count, i) => {
-                              const capacityPerShelf = Math.ceil(rack.slots / rack.shelfData.length);
-                              const fillPercentage = (count / capacityPerShelf) * 100;
-                              return (
-                                <div key={i} className="h-1.5 bg-surface-alt rounded-full border border-border-custom overflow-hidden">
-                                  <div 
-                                    className="h-full transition-all duration-500"
-                                    style={{ 
-                                      width: `${fillPercentage}%`,
-                                      backgroundColor: rack.color,
-                                      opacity: 0.6
-                                    }}
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
+                        <div className="flex flex-col-reverse gap-0.5">
+                          {rack.shelfData.slice(0, 3).map((count, i) => {
+                            const capacityPerShelf = Math.ceil(rack.slots / rack.shelfData.length);
+                            const fillPercentage = (count / capacityPerShelf) * 100;
+                            return (
+                              <div key={i} className="h-0.5 bg-surface-alt rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full transition-all duration-500"
+                                  style={{ 
+                                    width: `${fillPercentage}%`,
+                                    backgroundColor: rack.color,
+                                    opacity: 0.6
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </motion.div>
@@ -383,13 +378,13 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
-              className="p-4"
+              className="p-3"
             >
               <header className="flex items-center gap-3 mb-6">
-                <button onClick={goBack} className="w-10 h-10 bg-surface rounded-full flex items-center justify-center border border-border-custom text-gold shadow-sm">
-                  <ChevronLeft className="w-6 h-6" />
+                <button onClick={goBack} className="w-9 h-9 bg-surface rounded-full flex items-center justify-center border border-border-custom text-gold shadow-sm">
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h1 className="text-xl font-bold text-text-main">Denah Toko</h1>
+                <h1 className="text-lg font-bold text-text-main">Denah Toko</h1>
               </header>
 
               <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
@@ -412,8 +407,8 @@ export default function App() {
                 <div className="min-w-[800px]">
                   {/* Top Header Row */}
                   <div className="flex gap-1 mb-1">
-                    <div className="flex-1 min-w-[50px] aspect-square flex flex-col items-center justify-center text-[8px] font-bold text-text-muted bg-card2 rounded-lg border border-dashed border-border-custom">
-                      <div className="w-4 h-4 border-t-2 border-r-2 border-gold rotate-[-45deg] mb-0.5" />
+                    <div className="flex-1 min-w-[40px] aspect-square flex flex-col items-center justify-center text-[7px] font-bold text-text-muted bg-card2 rounded-lg border border-dashed border-border-custom">
+                      <div className="w-3 h-3 border-t-2 border-r-2 border-gold rotate-[-45deg] mb-0.5" />
                       UTARA
                     </div>
                     {["IA5", "HA1", "HA2", "HA3", "HA4", "HA5", "HA6", "HA7", "HA8", "HB1", "VJT", "VLT", "ZHH"].map(id => {
@@ -423,14 +418,14 @@ export default function App() {
                         <button 
                           key={id} 
                           onClick={() => rack && setSelectedDenahRack(rack)}
-                          className={`flex-1 min-w-[50px] aspect-square flex items-center justify-center text-[10px] font-bold transition-all rounded-lg relative ${
+                          className={`flex-1 min-w-[40px] aspect-square flex items-center justify-center text-[9px] font-bold transition-all rounded-lg relative ${
                             isSelected ? 'ring-2 ring-gold scale-105 z-10' : ''
                           } ${rack ? '' : 'text-text-muted bg-card2'}`}
                           style={{ backgroundColor: rack ? rack.color : undefined }}
                         >
                           {id}
                           {rack?.status === 'danger' && (
-                            <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
+                            <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white" />
                           )}
                         </button>
                       );
@@ -460,14 +455,14 @@ export default function App() {
                           const rack = RACKS_DATA.find(r => r.id === row.left);
                           rack && setSelectedDenahRack(rack);
                         }}
-                        className={`flex-1 min-w-[50px] aspect-square flex items-center justify-center text-[10px] font-bold transition-all rounded-lg relative ${
+                        className={`flex-1 min-w-[40px] aspect-square flex items-center justify-center text-[9px] font-bold transition-all rounded-lg relative ${
                           selectedDenahRack?.id === row.left ? 'ring-2 ring-gold scale-105 z-10' : ''
                         } ${RACKS_DATA.find(r => r.id === row.left) ? '' : 'text-text-muted bg-card2'}`}
                         style={{ backgroundColor: RACKS_DATA.find(r => r.id === row.left)?.color }}
                       >
                         {row.left}
                         {RACKS_DATA.find(r => r.id === row.left)?.status === 'danger' && (
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
+                          <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white" />
                         )}
                       </button>
                       
@@ -482,7 +477,7 @@ export default function App() {
                             key={j}
                             onClick={() => rack && setSelectedDenahRack(rack)}
                             disabled={!id}
-                            className={`flex-1 min-w-[50px] aspect-square rounded-lg flex items-center justify-center text-[9px] font-bold transition-all relative ${
+                            className={`flex-1 min-w-[40px] aspect-square rounded-lg flex items-center justify-center text-[8px] font-bold transition-all relative ${
                               !id ? 'bg-gray-50' : ''
                             } ${isVisible ? '' : 'opacity-20 grayscale'} ${isSelected ? 'ring-2 ring-gold scale-105 z-10' : ''}`}
                             style={{ 
@@ -491,7 +486,7 @@ export default function App() {
                           >
                             {id}
                             {rack?.status === 'danger' && (
-                              <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
+                              <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white" />
                             )}
                           </button>
                         );
@@ -503,14 +498,14 @@ export default function App() {
                           const rack = RACKS_DATA.find(r => r.id === row.right);
                           rack && setSelectedDenahRack(rack);
                         }}
-                        className={`flex-1 min-w-[50px] aspect-square flex items-center justify-center text-[10px] font-bold transition-all rounded-lg relative ${
+                        className={`flex-1 min-w-[40px] aspect-square flex items-center justify-center text-[9px] font-bold transition-all rounded-lg relative ${
                           selectedDenahRack?.id === row.right ? 'ring-2 ring-gold scale-105 z-10' : ''
                         } ${RACKS_DATA.find(r => r.id === row.right) ? '' : 'text-text-muted bg-card2'}`}
                         style={{ backgroundColor: RACKS_DATA.find(r => r.id === row.right)?.color }}
                       >
                         {row.right}
                         {RACKS_DATA.find(r => r.id === row.right)?.status === 'danger' && (
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
+                          <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white" />
                         )}
                       </button>
                     </div>
@@ -576,29 +571,29 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="p-4"
+              className="p-3"
             >
               <header className="flex items-center gap-3 mb-8">
-                <button onClick={goBack} className="w-10 h-10 bg-surface rounded-full flex items-center justify-center border border-border-custom text-gold shadow-sm">
-                  <ChevronLeft className="w-6 h-6" />
+                <button onClick={goBack} className="w-9 h-9 bg-surface rounded-full flex items-center justify-center border border-border-custom text-gold shadow-sm">
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h1 className="text-xl font-bold text-text-main">Jadwal Hari Ini</h1>
+                <h1 className="text-lg font-bold text-text-main">Jadwal Hari Ini</h1>
               </header>
 
-              <div className="space-y-6 relative before:absolute before:left-[27px] before:top-2 before:bottom-2 before:w-0.5 before:bg-border-custom">
+              <div className="space-y-4 relative before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-0.5 before:bg-border-custom">
                 {JADWAL.map((task, i) => (
-                  <div key={i} className="flex gap-4 items-start relative z-10">
-                    <div className="text-xs font-bold text-text-muted pt-3 w-10 text-right">{task.time}</div>
-                    <div className={`w-3.5 h-3.5 rounded-full mt-3.5 border-2 border-white shadow-sm ${
+                  <div key={i} className="flex gap-3 items-start relative z-10">
+                    <div className="text-[10px] font-bold text-text-muted pt-2 w-10 text-right">{task.time}</div>
+                    <div className={`w-3 h-3 rounded-full mt-2.5 border-2 border-white shadow-sm ${
                       task.status === 'done' ? 'bg-green-500' : task.status === 'active' ? 'bg-gold' : 'bg-gray-300'
                     }`} />
-                    <div className={`flex-1 bg-surface p-4 rounded-2xl border border-border-custom shadow-sm ${
+                    <div className={`flex-1 bg-surface p-3 rounded-xl border border-border-custom shadow-sm ${
                       task.status === 'done' ? 'opacity-60' : ''
                     }`}>
-                      <div className={`font-bold text-sm mb-1 ${task.status === 'done' ? 'line-through text-text-muted' : 'text-text-main'}`}>
+                      <div className={`font-bold text-xs mb-0.5 ${task.status === 'done' ? 'line-through text-text-muted' : 'text-text-main'}`}>
                         {task.title}
                       </div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-text-muted">
                         {task.status === 'done' ? 'Selesai' : task.status === 'active' ? 'Sedang Berjalan' : 'Menunggu'}
                       </div>
                     </div>
@@ -616,39 +611,38 @@ export default function App() {
               exit={{ opacity: 0, x: -50 }}
               className="pb-10"
             >
-              <header className="flex items-center justify-between p-4 sticky top-0 bg-bg z-10 border-b border-border-custom">
+              <header className="flex items-center justify-between p-3 sticky top-0 bg-bg z-10 border-b border-border-custom">
                 <div className="flex items-center gap-3">
-                  <button onClick={goBack} className="w-10 h-10 bg-surface rounded-full flex items-center justify-center border border-border-custom text-gold shadow-sm">
-                    <ChevronLeft className="w-6 h-6" />
+                  <button onClick={goBack} className="w-9 h-9 bg-surface rounded-full flex items-center justify-center border border-border-custom text-gold shadow-sm">
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <h1 className="text-xl font-black text-text-main uppercase tracking-tight">PLANOGRAM RAK {selectedRack.id}</h1>
+                  <h1 className="text-lg font-black text-text-main uppercase tracking-tight">PLANOGRAM RAK {selectedRack.id}</h1>
                 </div>
-                <div className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black border border-blue-100">
+                <div className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black border border-blue-100">
                   {selectedRack.category === 'Makanan' ? 'Makanan' : 'Non-Makanan'}
                 </div>
               </header>
 
-              <div className="p-4 space-y-6">
+              <div className="p-3 space-y-4">
                 {/* Product Slider (Planogram Style) */}
-                <div className="bg-surface rounded-[32px] border border-border-custom overflow-hidden shadow-sm">
+                <div className="bg-surface rounded-[24px] border border-border-custom overflow-hidden shadow-sm">
                   <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x">
                     {selectedRack.products.map((product, idx) => (
-                      <div key={idx} className="w-full flex-shrink-0 snap-center p-3">
-                        <div className="bg-[#2D2D35] rounded-[28px] overflow-hidden shadow-2xl relative aspect-[3/4] flex flex-col">
+                      <div key={idx} className="w-full flex-shrink-0 snap-center p-2">
+                        <div className="bg-[#2D2D35] rounded-[20px] overflow-hidden shadow-2xl relative aspect-[4/5] flex flex-col">
                           {/* Product Info Overlay */}
-                          <div className="p-5 z-10">
-                            <div className="text-white font-black text-lg uppercase tracking-tight mb-1">{product.name}</div>
-                            <div className="flex items-center gap-3">
+                          <div className="p-4 z-10">
+                            <div className="text-white font-black text-base uppercase tracking-tight mb-0.5">{product.name}</div>
+                            <div className="flex items-center gap-2">
                               <div className="flex items-center gap-1 text-orange-400">
-                                <Star className="w-4 h-4 fill-current" />
-                                <span className="text-sm font-bold text-white/90">{product.rating}</span>
+                                <Star className="w-3 h-3 fill-current" />
+                                <span className="text-xs font-bold text-white/90">{product.rating}</span>
                               </div>
-                              <div className="text-xs font-medium text-white/50">{product.reviews} reviews</div>
                             </div>
                           </div>
 
                           {/* Product Image */}
-                          <div className="flex-1 flex items-center justify-center p-6">
+                          <div className="flex-1 flex items-center justify-center p-4">
                             <img 
                               src={product.image} 
                               alt={product.name}
@@ -658,20 +652,20 @@ export default function App() {
                           </div>
 
                           {/* Footer */}
-                          <div className="p-5 flex items-center justify-between mt-auto">
-                            <div className="flex items-center gap-2 text-white/70">
-                              <Heart className="w-5 h-5" />
-                              <span className="text-sm font-bold">{product.likes}</span>
+                          <div className="p-4 flex items-center justify-between mt-auto">
+                            <div className="flex items-center gap-1.5 text-white/70">
+                              <Heart className="w-4 h-4" />
+                              <span className="text-xs font-bold">{product.likes}</span>
                             </div>
-                            <div className="text-xs font-black text-gold bg-gold/10 px-3 py-1.5 rounded-lg border border-gold/20">
+                            <div className="text-[10px] font-black text-gold bg-gold/10 px-2 py-1 rounded-lg border border-gold/20">
                               PLU: {product.barcode.slice(-4)}
                             </div>
                           </div>
 
                           {/* Dots */}
-                          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
                             {selectedRack.products.map((_, pIdx) => (
-                              <div key={pIdx} className={`w-1.5 h-1.5 rounded-full transition-all ${idx === pIdx ? 'bg-gold w-4' : 'bg-white/20'}`} />
+                              <div key={pIdx} className={`w-1 h-1 rounded-full transition-all ${idx === pIdx ? 'bg-gold w-3' : 'bg-white/20'}`} />
                             ))}
                           </div>
                         </div>
@@ -680,21 +674,21 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <div className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black border ${selectedRack.harga ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-                    {selectedRack.harga ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] uppercase tracking-wider">Harga</span>
+                <div className="flex gap-2">
+                  <div className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-black border ${selectedRack.harga ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
+                    {selectedRack.harga ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                    <span className="text-[9px] uppercase tracking-wider">Harga</span>
                   </div>
-                  <div className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-black border ${selectedRack.rapi ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-                    {selectedRack.rapi ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
-                    <span className="text-[10px] uppercase tracking-wider">Kerapian</span>
+                  <div className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-black border ${selectedRack.rapi ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
+                    {selectedRack.rapi ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                    <span className="text-[9px] uppercase tracking-wider">Kerapian</span>
                   </div>
                 </div>
 
                   {/* Realistic Shelving Structure */}
-                  <div className="space-y-3 mb-8">
-                    <div className="text-[10px] font-black text-text-dim uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                      <LayoutGrid className="w-3 h-3" />
+                  <div className="space-y-2 mb-6">
+                    <div className="text-[9px] font-black text-text-dim uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                      <LayoutGrid className="w-2.5 h-2.5" />
                       Struktur Selving & Baris
                     </div>
                     <div className="flex flex-col-reverse gap-2">
@@ -705,10 +699,10 @@ export default function App() {
                         return (
                           <div key={i} className="group">
                             <div className="flex justify-between items-end mb-1 px-1">
-                              <span className="text-[9px] font-black text-text-dim uppercase">Lantai {i + 1}</span>
-                              <span className="text-[9px] font-bold text-gold">{count} / {capacityPerShelf} Unit</span>
+                              <span className="text-[8px] font-black text-text-dim uppercase">Lantai {i + 1}</span>
+                              <span className="text-[8px] font-bold text-gold">{count} / {capacityPerShelf} Unit</span>
                             </div>
-                            <div className="h-4 bg-surface-alt rounded-md border border-border-custom relative overflow-hidden shadow-inner">
+                            <div className="h-3 bg-surface-alt rounded-md border border-border-custom relative overflow-hidden shadow-inner">
                               {/* Shelf Base Line */}
                               <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-border-custom opacity-50" />
                               
@@ -850,7 +844,7 @@ export default function App() {
                       setSpecificRackId(null);
                       setExpandedLetter(null);
                     }}
-                    className={`w-full py-2 px-4 rounded-lg text-[10px] font-bold border transition-all text-left ${
+                    className={`w-full py-1.5 px-3 rounded-lg text-[9px] font-bold border transition-all text-left ${
                       letterFilter === 'all' 
                       ? 'bg-gold border-gold text-white shadow-sm' 
                       : 'bg-card2 border-border-custom text-text-dim'
@@ -863,7 +857,7 @@ export default function App() {
                     <div key={letter} className="space-y-1">
                       <button
                         onClick={() => setExpandedLetter(expandedLetter === letter ? null : letter)}
-                        className={`w-full py-2 px-4 rounded-lg text-[11px] font-black border flex justify-between items-center transition-all ${
+                        className={`w-full py-1.5 px-3 rounded-lg text-[10px] font-black border flex justify-between items-center transition-all ${
                           letterFilter === letter 
                           ? 'bg-gold/5 border-gold/20 text-gold' 
                           : 'bg-card2 border-border-custom text-text-dim'
@@ -959,8 +953,8 @@ export default function App() {
       </AnimatePresence>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-surface border-t border-border-custom px-5 pt-2 pb-7 z-20">
-        <div className="bg-card2 rounded-[24px] p-1.5 flex gap-1 border border-border-custom">
+      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-surface border-t border-border-custom px-4 pt-1.5 pb-6 z-20">
+        <div className="bg-card2 rounded-[20px] p-1 flex gap-1 border border-border-custom">
           {[
             { id: 'home', label: 'Home', icon: HomeIcon },
             { id: 'denah', label: 'Denah', icon: LayoutGrid },
@@ -972,12 +966,12 @@ export default function App() {
               <button
                 key={item.id}
                 onClick={() => navigateTo(item.id as Screen)}
-                className={`flex-1 flex flex-col items-center gap-1 py-2.5 rounded-[18px] transition-all ${
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-[16px] transition-all ${
                   isActive ? 'bg-surface text-gold shadow-sm' : 'text-text-muted'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
-                <span className="text-[10px] font-bold">{item.label}</span>
+                <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5px]' : 'stroke-[2px]'}`} />
+                <span className="text-[9px] font-bold">{item.label}</span>
               </button>
             );
           })}

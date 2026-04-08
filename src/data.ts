@@ -51,8 +51,8 @@ const generateRack = (id: string): Rack => {
     'https://picsum.photos/seed/shampoo/400/400'
   ];
 
-  const products: Rack['products'] = Array.from({ length: 2 + Math.floor(Math.random() * 3) }, (_, i) => ({
-    name: i === 0 ? `Produk ${id}` : productNames[Math.floor(Math.random() * productNames.length)],
+  const products: Rack['products'] = Array.from({ length: 4 + Math.floor(Math.random() * 4) }, (_, i) => ({
+    name: i === 0 ? id : productNames[Math.floor(Math.random() * productNames.length)],
     barcode: `899${Math.floor(Math.random() * 1000000000)}`,
     price: `Rp ${(5 + Math.floor(Math.random() * 45)) * 1000}`,
     image: productImages[Math.floor(Math.random() * productImages.length)],
@@ -60,6 +60,8 @@ const generateRack = (id: string): Rack => {
     reviews: Math.floor(Math.random() * 500) + 50,
     likes: Math.floor(Math.random() * 200) + 10,
     baseRH,
+    shelving: Math.floor(i / 2) + 1,
+    baris: (i % 2) + 1,
   }));
 
   return {

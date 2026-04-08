@@ -7,6 +7,8 @@ export interface Product {
   reviews?: number;
   likes?: number;
   baseRH: number;
+  shelving: number;
+  baris: number;
 }
 
 export interface RHHistory {
