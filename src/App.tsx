@@ -241,13 +241,27 @@ export default function App() {
                       className="bg-white rounded-[16px] overflow-hidden border border-border-custom relative cursor-pointer flex flex-col active:scale-95 transition-all"
                     >
                       {/* Product Image */}
-                      <div className="aspect-square flex items-center justify-center p-3 relative">
+                      <div className="aspect-square flex items-center justify-center relative">
                         <img 
                           src={product.image} 
                           alt={product.name}
                           referrerPolicy="no-referrer"
-                          className="w-full h-full object-contain drop-shadow-xl"
+                          className="w-full h-full object-cover"
                         />
+                      </div>
+                      {/* Product Details Grid */}
+                      <div className="p-2 bg-white border-t border-border-custom space-y-1">
+                        <div className="text-[7px] font-black text-text-main uppercase truncate mb-1">
+                          {product.description}
+                        </div>
+                        <div className="flex justify-between items-center border-t border-border-custom/50 pt-1">
+                          <span className="text-[6px] font-bold text-text-dim uppercase tracking-tighter">PLU</span>
+                          <span className="text-[7px] font-bold text-text-main">{product.plu}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[6px] font-bold text-text-dim uppercase tracking-tighter">Barcode</span>
+                          <span className="text-[7px] font-bold text-text-main">{product.barcode}</span>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
@@ -261,48 +275,73 @@ export default function App() {
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      onClick={() => navigateTo('detail-rak', rack)}
-                      className="bg-surface rounded-[16px] border border-border-custom overflow-hidden shadow-sm active:scale-[0.99] transition-all cursor-pointer flex flex-col"
+                      className="bg-surface rounded-[16px] border border-border-custom overflow-hidden shadow-sm transition-all flex flex-col"
                     >
-                      {/* Rack Header Section */}
-                      <div className="p-2 border-b border-border-custom">
-                        <div className="flex items-center gap-1.5">
-                          <div className="text-sm font-black text-text-main uppercase tracking-tight">{rack.id}</div>
-                          <div className="flex gap-0.5">
-                            {rack.harga && (
-                              <div className="bg-green-500 w-1.5 h-1.5 rounded-full" title="HARGA" />
-                            )}
-                            {rack.rapi && (
-                              <div className="bg-blue-500 w-1.5 h-1.5 rounded-full" title="RAPI" />
-                            )}
+                      {/* Rack Header Section - Clickable */}
+                      <div 
+                        onClick={() => navigateTo('detail-rak', rack)}
+                        className="p-2.5 border-b border-border-custom cursor-pointer active:bg-surface-alt transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="text-base font-black text-text-main uppercase tracking-tight">{rack.id}</div>
+                            <div className="flex gap-1">
+                              {rack.harga && (
+                                <div className="bg-green-500 w-2 h-2 rounded-full shadow-[0_0_5px_rgba(34,197,94,0.5)]" title="HARGA" />
+                              )}
+                              {rack.rapi && (
+                                <div className="bg-blue-500 w-2 h-2 rounded-full shadow-[0_0_5px_rgba(59,130,246,0.5)]" title="RAPI" />
+                              )}
+                            </div>
                           </div>
+                          <ChevronRight className="w-3 h-3 text-text-dim" />
                         </div>
                       </div>
 
                       {/* Top Colored Section - Swipeable Products */}
                       <div className="relative group flex-1">
-                        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x h-full">
+                        <div 
+                          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x h-full"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {rack.products.map((product, idx) => (
-                            <div key={idx} className="w-full flex-shrink-0 snap-center p-1">
-                              <div className="mb-1 px-1">
-                                <div className="text-[7px] font-bold text-text-main leading-tight">
+                            <div key={idx} className="w-full flex-shrink-0 snap-center p-2">
+                              <div className="mb-1.5 px-1">
+                                <div className="text-[9px] font-bold text-text-main leading-tight">
                                   Shelving {product.shelving} · Baris {product.baris}
                                 </div>
-                                <div className="text-[6px] font-medium text-red-500">
+                                <div className="text-[8px] font-bold text-red-500">
                                   RH {product.baseRH} hari
                                 </div>
                               </div>
                               <div 
-                                className="bg-white rounded-[12px] overflow-hidden border border-border-custom relative aspect-square flex flex-col"
+                                className="bg-white rounded-[12px] overflow-hidden border border-border-custom relative aspect-square flex flex-col shadow-sm"
                               >
                                 {/* Product Image */}
-                                <div className="flex-1 flex items-center justify-center p-1.5">
+                                <div className="flex-1 flex items-center justify-center">
                                   <img 
                                     src={product.image} 
                                     alt={product.name}
                                     referrerPolicy="no-referrer"
-                                    className="w-full h-full object-contain drop-shadow-xl"
+                                    className="w-full h-full object-cover"
                                   />
+                                </div>
+                              </div>
+                              {/* Product Details - Clickable */}
+                              <div 
+                                onClick={() => navigateTo('detail-rak', rack)}
+                                className="mt-2 px-1 space-y-1 cursor-pointer"
+                              >
+                                <div className="text-[8px] font-black text-text-main uppercase truncate leading-none">
+                                  {product.description}
+                                </div>
+                                <div className="flex justify-between items-center border-t border-border-custom/30 pt-1">
+                                  <span className="text-[7px] font-bold text-text-dim uppercase">PLU</span>
+                                  <span className="text-[8px] font-black text-text-main">{product.plu}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-[7px] font-bold text-text-dim uppercase">Barcode</span>
+                                  <span className="text-[8px] font-black text-text-main">{product.barcode}</span>
                                 </div>
                               </div>
                             </div>
@@ -310,28 +349,19 @@ export default function App() {
                         </div>
                       </div>
                       
-                      <div className="px-2 pb-2 mt-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="text-[6px] font-black text-text-dim uppercase">Visual</div>
-                          <div className="text-[6px] font-bold text-gold">{rack.filled}/{rack.slots}</div>
-                        </div>
-                        <div className="flex flex-col-reverse gap-0.5">
-                          {rack.shelfData.slice(0, 3).map((count, i) => {
-                            const capacityPerShelf = Math.ceil(rack.slots / rack.shelfData.length);
-                            const fillPercentage = (count / capacityPerShelf) * 100;
-                            return (
-                              <div key={i} className="h-0.5 bg-surface-alt rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full transition-all duration-500"
-                                  style={{ 
-                                    width: `${fillPercentage}%`,
-                                    backgroundColor: rack.color,
-                                    opacity: 0.6
-                                  }}
-                                />
-                              </div>
-                            );
-                          })}
+                      <div className="px-2.5 pb-2.5 mt-1 border-t border-border-custom/30 pt-2">
+                        <div className="text-[7px] font-black text-text-dim uppercase mb-1.5 tracking-tighter">Barcode Visual</div>
+                        <div className="flex gap-[1px] h-4 items-stretch overflow-hidden bg-white/50 p-1 rounded-sm border border-border-custom/30">
+                          {Array.from({ length: 50 }).map((_, i) => (
+                            <div 
+                              key={i} 
+                              className="bg-black/90" 
+                              style={{ 
+                                width: `${[1, 1, 2, 1, 1, 3, 1, 2][i % 8]}px`,
+                                opacity: (i % 9 === 0) ? 0 : 1
+                              }} 
+                            />
+                          ))}
                         </div>
                       </div>
                     </motion.div>

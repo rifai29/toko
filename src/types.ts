@@ -9,6 +9,8 @@ export interface Product {
   baseRH: number;
   shelving: number;
   baris: number;
+  plu: string;
+  description: string;
 }
 
 export interface RHHistory {

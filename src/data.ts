@@ -62,6 +62,8 @@ const generateRack = (id: string): Rack => {
     baseRH,
     shelving: Math.floor(i / 2) + 1,
     baris: (i % 2) + 1,
+    plu: `${100000 + Math.floor(Math.random() * 900000)}`,
+    description: i === 0 ? `Produk Utama ${id}` : `Varian Produk ${i + 1}`,
   }));
 
   return {
